@@ -4,42 +4,45 @@ import axios = require('axios');
 import {v4} from 'uuid';
 
 const s3 = new aws.S3();
-const bucketName = "2itsof3-4-gifmaker"
-
+const bucketName = 'levi-test-2021'
 
 let app = express()
-
-app.get('/api', (req, res) => {
-    res.send('hello world');
-})
-app.get('/api/gif', (req, res) => {
-   (async () => {
-        await s3
-            .getObject({
-                Bucket:'2itsof3-4-gifmaker',
-                Key:'personacanvas.jpg'
-            })
-   })();
-})
+app.use(express.json())
 
 app.get('/getuploadurl', (req,res) => {
     const objectId = v4();
     console.log("Return upload url with objectid: ", objectId)
-    const generatedUrl = generatePutUrl(objectId);
+    const generatedUrl = generatePutUrl(objectId,'image/jpg');
     res.json(generatedUrl);
 })
 
-app.post('/api', (req, res) => {
-    (async () => {
-        await s3
-            .putObject({
-                Body:'hello world',
-                Bucket:'testbucketlevi',
-                Key:'helloworld.txt'
+app.post('/signaluploadcompleted', (req,res) => {
+    const {uploadUrls} = req.body;
+    
+    const objectIds = uploadUrls.map(uploadurls => extractObjectId(uploadurls));
+    
+    const inputImageUrls = objectIds.map(id => generateGetUrl(id));
+    
+    const outputObjectId = v4();
+    console.log('Output id: ',outputObjectId);
+    
+    const outputImageUrl = generatePutUrl(outputObjectId, 'image/gif');
+    
+    axios.post('https://msw310j97f.execute-api.eu-west-1.amazonaws.com/Prod/generate/gif', {
+        inputImageUrls,
+        outputImageUrl
+    },
+    {headers: {
+        'x-api-key':''//haal api key van postman file van lector
+    }})
+    .then(function (response) {
+        const gifUrl = generateGetUrl(outputObjectId);
+        res.json(gifUrl);
+    })
+    .catch(function (error) {
+        res.status(500).json(error);
+    });
 
-            }).promise()
-    })();
-    res.send("created");
 })
 
 function generateGetUrl(objectId){
@@ -50,12 +53,19 @@ function generateGetUrl(objectId){
     })
 }
 
-function generatePutUrl(objectId) {
+function generatePutUrl(objectId, contentType) {
     return s3.getSignedUrl("putObject",{
         Key: objectId,
         Bucket: bucketName,
-        Expires: 900
+        Expires: 900,
+        ContentType: contentType
     })
+}
+
+function extractObjectId(url){
+    const urlZonderMark = url.split("?")[0];
+    const splitUrlSlashes = urlZonderMark.split('/');
+    return splitUrlSlashes[splitUrlSlashes.length - 1];
 }
 
 app.listen(3000);
