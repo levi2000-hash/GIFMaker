@@ -1,6 +1,6 @@
 import aws = require('aws-sdk');
 import express = require('express');
-import axios = require('axios');
+import axios from 'axios';
 import {v4} from 'uuid';
 
 const s3 = new aws.S3();
@@ -18,16 +18,16 @@ app.get('/getuploadurl', (req,res) => {
 
 app.post('/signaluploadcompleted', (req,res) => {
     const {uploadUrls} = req.body;
-    
+
     const objectIds = uploadUrls.map(uploadurls => extractObjectId(uploadurls));
-    
+
     const inputImageUrls = objectIds.map(id => generateGetUrl(id));
-    
+
     const outputObjectId = v4();
     console.log('Output id: ',outputObjectId);
-    
+
     const outputImageUrl = generatePutUrl(outputObjectId, 'image/gif');
-    
+
     axios.post('https://msw310j97f.execute-api.eu-west-1.amazonaws.com/Prod/generate/gif', {
         inputImageUrls,
         outputImageUrl
