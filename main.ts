@@ -4,7 +4,7 @@ import axios from 'axios';
 import {v4} from 'uuid';
 
 const s3 = new aws.S3();
-const bucketName = 'levi-test-2021'
+const bucketName = 'levi-test-2021':
 
 let app = express()
 app.use(express.json())
@@ -33,7 +33,7 @@ app.post('/signaluploadcompleted', (req,res) => {
         outputImageUrl
     },
     {headers: {
-        'x-api-key':''//haal api key van postman file van lector
+        'x-api-key':'SIdHi3lzwma61h4GeBGR96ZD4rpsa3mb6iKVlMG7'
     }})
     .then(function (response) {
         const gifUrl = generateGetUrl(outputObjectId);
