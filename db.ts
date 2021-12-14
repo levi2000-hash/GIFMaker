@@ -10,4 +10,4 @@ var pool =
     "database": "gifAPI"
   });
 
-export = pool
+export { pool }

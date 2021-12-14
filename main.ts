@@ -2,7 +2,7 @@ import aws = require('aws-sdk');
 import express = require('express');
 import axios from 'axios';
 import {v4} from 'uuid';
-import pool  from './db';
+import {pool}  from './db';
 
 const s3 = new aws.S3();
 const bucketName = ''
