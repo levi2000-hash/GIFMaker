@@ -2,9 +2,10 @@ import aws = require('aws-sdk');
 import express = require('express');
 import axios from 'axios';
 import {v4} from 'uuid';
+import pool  from './db';
 
 const s3 = new aws.S3();
-const bucketName = 'levi-test-2021'
+const bucketName = ''
 
 let app = express()
 app.use(express.json())
@@ -33,7 +34,7 @@ app.post('/signaluploadcompleted', (req,res) => {
         outputImageUrl
     },
     {headers: {
-        'x-api-key':''//haal api key van postman file van lector
+        'x-api-key':'SIdHi3lzwma61h4GeBGR96ZD4rpsa3mb6iKVlMG7'//haal api key van postman file van lector
     }})
     .then(function (response) {
         const gifUrl = generateGetUrl(outputObjectId);
@@ -43,6 +44,17 @@ app.post('/signaluploadcompleted', (req,res) => {
         res.status(500).json(error);
     });
 
+})
+
+app.post('/getobjecturl', (req,res) => { 
+
+    res.json(generateGetUrl(req.body.id))
+})
+
+app.get('/getUsers', async (req,res) => {
+
+    const users = await pool.query("select * from users;")
+    res.json(users)
 })
 
 function generateGetUrl(objectId){
