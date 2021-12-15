@@ -2,22 +2,31 @@ import aws = require('aws-sdk');
 import express = require('express');
 import axios from 'axios';
 import {v4} from 'uuid';
-import {pool}  from './db';
+
+aws.config.update(
+    {
+        accessKeyId: "ASIAVUZ3GXGTTO6VKSFV",
+        secretAccessKey:"",
+        region: "us-east-1",
+        signatureVersion: "v4",
+        sessionToken: ""
+    }
+)
 
 const s3 = new aws.S3();
-const bucketName = ''
+const bucketName = 'gifmaker-test-robbe'
 
 let app = express()
 app.use(express.json())
 
-app.get('/getuploadurl', (req,res) => {
+app.get('/api/imageurl', (req,res) => {
     const objectId = v4();
     console.log("Return upload url with objectid: ", objectId)
     const generatedUrl = generatePutUrl(objectId,'image/jpg');
     res.json(generatedUrl);
 })
 
-app.post('/signaluploadcompleted', (req,res) => {
+app.post('/api/signaluploadcompleted', (req,res) => {
     const {uploadUrls} = req.body;
 
     const objectIds = uploadUrls.map(uploadurls => extractObjectId(uploadurls));
@@ -29,7 +38,7 @@ app.post('/signaluploadcompleted', (req,res) => {
 
     const outputImageUrl = generatePutUrl(outputObjectId, 'image/gif');
 
-    axios.post('https://msw310j97f.execute-api.eu-west-1.amazonaws.com/Prod/generate/gif', {
+    axios.post('https://msw31oj97f.execute-api.eu-west-1.amazonaws.com/Prod/generate/gif', {
         inputImageUrls,
         outputImageUrl
     },
@@ -46,16 +55,13 @@ app.post('/signaluploadcompleted', (req,res) => {
 
 })
 
+
 app.post('/getobjecturl', (req,res) => { 
 
     res.json(generateGetUrl(req.body.id))
 })
 
-app.get('/getUsers', async (req,res) => {
 
-    const users = await pool.query("select * from users;")
-    res.json(users)
-})
 
 function generateGetUrl(objectId){
     return s3.getSignedUrl("getObject",{
