@@ -4,6 +4,7 @@ import axios from 'axios';
 import { v4 } from 'uuid';
 import cookieParser from 'cookie-parser'
 import jwt from 'jsonwebtoken';
+import * as repo from './persist/repo'
 
 aws.config.update(
     {
@@ -73,11 +74,23 @@ app.get('/api/imageurl', (req, res) => {
 
     else {
 
-        const objectId = v4();
+        const objectId = generateObjectId();
         console.log("Return upload url with objectid: ", objectId)
         const generatedUrl = generatePutUrl(objectId, 'image/jpg');
         res.json(generatedUrl);
     }
+})
+
+app.get('/dbtest/featured',(req, res)=>{
+    repo.getAllFeaturedGifsFromUser("user123").then((data) => {
+        res.json(data)
+    })
+
+})
+
+app.get('/dbtest/create', (req, res)=>{
+    repo.addGifTask({userId: "user123", outputObjectId: "object123", featured: true})
+    res.json();
 })
 
 app.post('/api/signaluploadcompleted', (req, res) => {
@@ -92,7 +105,10 @@ app.post('/api/signaluploadcompleted', (req, res) => {
 
     else {
 
+        const userId = jwt.decode(req.cookies.id_token).sub
+
         const { uploadUrls } = req.body;
+        const { featured } = req.body;
 
         const objectIds = uploadUrls.map(uploadurls => extractObjectId(uploadurls));
 
@@ -102,10 +118,10 @@ app.post('/api/signaluploadcompleted', (req, res) => {
             console.log(url)
         });
 
-        const outputObjectId = v4();
+        const outputObjectId = generateObjectId(featured);
         console.log('Output id: ', outputObjectId);
 
-        const outputImageUrl = generatePutUrl(outputObjectId, 'image/gif');
+        const outputImageUrl = generatePutUrl(outputObjectId, 'image/gif', true);
 
 
         axios.post('https://msw31oj97f.execute-api.eu-west-1.amazonaws.com/Prod/generate/gif', {
@@ -120,7 +136,7 @@ app.post('/api/signaluploadcompleted', (req, res) => {
             .then(function (response) {
 
                 //WRITE TO DB
-                
+                //repo.addGifTask({userId: userId, outputObjectId: outputObjectId, featured: featured})
 
                 const gifUrl = generateGetUrl(outputObjectId);
                 res.json(gifUrl);
@@ -147,13 +163,31 @@ function generateGetUrl(objectId) {
     })
 }
 
-function generatePutUrl(objectId, contentType) {
+function generatePutUrl(objectId: string, contentType: string, gif: boolean = false) {
+    let timePeriod = 900
+    
+    if(gif)
+    {
+        timePeriod = 86400
+    }
     return s3.getSignedUrl("putObject", {
         Key: objectId,
         Bucket: bucketName,
-        Expires: 900,
+        Expires: timePeriod,
         ContentType: contentType
     })
+}
+
+function generateObjectId(featured: boolean = false) : string
+{
+    let prefix = "normal"
+
+    if(featured)
+    {
+        prefix = "featured"
+    }
+
+    return `${prefix}_${v4()}`
 }
 
 function extractObjectId(url) {
