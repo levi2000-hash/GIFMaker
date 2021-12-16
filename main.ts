@@ -2,16 +2,16 @@ import aws = require('aws-sdk');
 import express = require('express');
 import axios from 'axios';
 import { v4 } from 'uuid';
-import cookieParser  from 'cookie-parser'
+import cookieParser from 'cookie-parser'
 import jwt from 'jsonwebtoken';
 
 aws.config.update(
     {
-        accessKeyId: "ASIAVUZ3GXGTXQWBU2XD",
-        secretAccessKey: "mnPNoJMJCKdCG1evMinsD5ipeHHTt37HmvAawMvl",
+        accessKeyId: "ASIAVUZ3GXGTVGJVKWWB",
+        secretAccessKey: "pMatxY2IDnx6Cu/foWdI1vkipvc0u4is9ATXB6n0",
         region: "us-east-1",
         signatureVersion: "v4",
-        sessionToken: "FwoGZXIvYXdzEKj//////////wEaDIPxXWD2Kigbbcq7ByLLAYQk+J0006cPUDMyAc8dhP95dC8zwyaOzo/Vjoz81uiGEtlsoySVk5xCI1lqB+RJfgi2jtanm7CnKj8HxRgPKv9leRBgVxg0TB0Ebm7DU4PMTSP8/y8dWtMb3asWGc6cbXfjbrWJ7OnD91La/VskgQmQvS4rlo6zQMmfMW3vFljAexp8AC6EVdxH9gAwPGUjSUAPizuBwATmxkdu3bQi4Hs7rtlmUfgZohNpbngx04+07djTQP2+MqY2ur93zq8IDgwHYH7Yr+Mi3jutKMvP6Y0GMi2hzFM36GugUMbZutBFqin59iloTbLDKS7P87YWdV843Qq8qh+cwqy6J2g64GM="
+        sessionToken: "FwoGZXIvYXdzELL//////////wEaDE1YJ3HGBSGM77+AFyLLAY0laUUCtg/9mnQAnOPlTXAM8xfUl6ecDVAUtbSCN0YLP6HkAJAiSSS9FHUN5G7hjfF/wNi9eS9TX5T/28Q6dw5vZdzIBxbEjSdpffN9+Eb43mbGVhKL6ggEEmXqa3d1+pZEB6gFEr8bn6hYXOwv1C8AK1OuV4qgXeA7eHnq6UNrnAxytuNhsFp09/WNPbpViX23B1dLyXpRQpBLzXPxZwW1/gKm4a43Y5Sfimq3fw3CHalq6IqKOkuGa15P3v8DZZo5pcnlSZs/0NJtKOiB7I0GMi00VHXi0lu3woEGQsZxpD7iFUwwJKKM7XoC2Y398G8/eRkrKm1SQY5JLWlX3Uk="
     }
 )
 
@@ -48,7 +48,6 @@ app.post("/api/exchange-code", (req, res) => {
                 password: client_secret
             }
         }).then(result => {
-
             //Get unique user ID (sub) from id_token jwt
             let sub = jwt.decode(result.data.id_token).sub
             console.log(sub)
@@ -57,83 +56,85 @@ app.post("/api/exchange-code", (req, res) => {
             res.cookie('id_token', result.data.id_token, { httpOnly: true })
             res.json(result.data)
         }).catch(err => {
-            console.error(err)
+
             res.status(500).json(err)
         })
 })
 
 app.get('/api/imageurl', (req, res) => {
 
-    if(!req.cookies)
-    {
+    if (!req.cookies) {
         respondUnauthorized(res)
     }
 
-    else if(!req.cookies.id_token)
-    {
+    else if (!req.cookies.id_token) {
         respondUnauthorized(res)
     }
-    
-    else{
 
-    const objectId = v4();
-    console.log("Return upload url with objectid: ", objectId)
-    const generatedUrl = generatePutUrl(objectId, 'image/jpg');
-    res.json(generatedUrl);
+    else {
+
+        const objectId = v4();
+        console.log("Return upload url with objectid: ", objectId)
+        const generatedUrl = generatePutUrl(objectId, 'image/jpg');
+        res.json(generatedUrl);
     }
 })
 
 app.post('/api/signaluploadcompleted', (req, res) => {
 
-    if(!req.cookies)
-    {
+    if (!req.cookies) {
         respondUnauthorized(res)
     }
 
-    else if(!req.cookies.id_token)
-    {
+    else if (!req.cookies.id_token) {
         respondUnauthorized(res)
     }
-    
-    else{
 
-    
+    else {
 
-    const { uploadUrls } = req.body;
+        const { uploadUrls } = req.body;
 
-    const objectIds = uploadUrls.map(uploadurls => extractObjectId(uploadurls));
+        const objectIds = uploadUrls.map(uploadurls => extractObjectId(uploadurls));
 
-    const inputImageUrls = objectIds.map(id => generateGetUrl(id));
+        const inputImageUrls = objectIds.map(id => generateGetUrl(id));
 
-    const outputObjectId = v4();
-    console.log('Output id: ', outputObjectId);
-
-    const outputImageUrl = generatePutUrl(outputObjectId, 'image/gif');
-
-    axios.post('https://msw31oj97f.execute-api.eu-west-1.amazonaws.com/Prod/generate/gif', {
-        inputImageUrls,
-        outputImageUrl
-    },
-        {
-            headers: {
-                'x-api-key': 'SIdHi3lzwma61h4GeBGR96ZD4rpsa3mb6iKVlMG7'//haal api key van postman file van lector
-            }
-        })
-        .then(function (response) {
-            const gifUrl = generateGetUrl(outputObjectId);
-            res.json(gifUrl);
-        })
-        .catch(function (error) {
-            res.status(500).json(error);
+        inputImageUrls.forEach(url => {
+            console.log(url)
         });
 
+        const outputObjectId = v4();
+        console.log('Output id: ', outputObjectId);
+
+        const outputImageUrl = generatePutUrl(outputObjectId, 'image/gif');
+
+
+        axios.post('https://msw31oj97f.execute-api.eu-west-1.amazonaws.com/Prod/generate/gif', {
+            inputImageUrls,
+            outputImageUrl
+        },
+            {
+                headers: {
+                    'x-api-key': 'SIdHi3lzwma61h4GeBGR96ZD4rpsa3mb6iKVlMG7'//haal api key van postman file van lector
+                }
+            })
+            .then(function (response) {
+
+                //WRITE TO DB
+                
+
+                const gifUrl = generateGetUrl(outputObjectId);
+                res.json(gifUrl);
+            })
+            .catch(function (error) {
+                res.status(500).json(error);
+            });
     }
+
 
 })
 
 
-function respondUnauthorized(res)
-{
+function respondUnauthorized(res) {
     res.status(401).json()
 }
 
