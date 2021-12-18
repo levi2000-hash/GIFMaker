@@ -8,11 +8,11 @@ import * as repo from './persist/repo'
 
 aws.config.update(
     {
-        accessKeyId: "ASIAVUZ3GXGTVFG5HS4X",
-        secretAccessKey: "qfmm4AaZm3crjcv2T16X0L0MAd27oIFdlD5T7U6W",
+        accessKeyId: "",
+        secretAccessKey: "",
         region: "us-east-1",
         signatureVersion: "v4",
-        sessionToken: "FwoGZXIvYXdzENj//////////wEaDOtYzjhOHC9E0Ki8nyLLAVe71OdGFyRZC+7otF/cy9pKtyc3HuC1kZW12422Ez59RAy4Arm4lgZ1/I8UXqtH2v6fHT97lRwEbVZaD7uiTgTxDaJDUZgDIRctfATsBXFBTARcB2bS646SwoSABOZyiQjYTq5oX+16eR9PsDxwou9X9w8o5vC0b2FBou0+jQxe1j5jiEunBnF6Kczv84vnDHOx2ENDr+7gB+t4w+SPWmu2aqS0j3GTrAZm+Ibd/TZDHLJf5wZiSOYBWtSJvnCL79EzPI5ZUKT1PKNPKLmq9I0GMi3hp9C+TyIsv0P3ukXUf2IISJtA2s8rMSSaatrUfyVOhg11T3xTFVeuD39ja6g="
+        sessionToken: ""
     }
 )
 
@@ -104,6 +104,8 @@ app.get('/api/featured', (req, res) => {
 
 
             
+        }).catch((err)=>{
+            res.status(500).json(err)
         })
     }
 
@@ -154,8 +156,6 @@ app.post('/api/signaluploadcompleted', (req, res) => {
 
                 //WRITE TO DB
                 repo.addGifTask({userId: userId, outputObjectId: outputObjectId, featured: featured})
-
-                //repo.addGifTaskMemory({ userId: userId, outputObjectId: outputObjectId, featured: featured })
 
                 const gifUrl = generateGetUrl(outputObjectId);
                 res.json(gifUrl);

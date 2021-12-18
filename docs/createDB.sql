@@ -1,7 +1,5 @@
 CREATE SEQUENCE gifseq START WITH 1 INCREMENT BY 1;
 
-
-
 CREATE TABLE GifTask(
     id int unique,
     userId varchar(255),
@@ -10,7 +8,7 @@ CREATE TABLE GifTask(
 );
 
 -- Nieuwe giftask toevoegen
--- INSERT INTO GifTask (id, userId, outputObjectId, featured) VALUES (gifseq.nextval,  , ..., TRUE/FALSE);
+-- INSERT INTO GifTask (id, userId, outputObjectId, featured) VALUES (gifseq.nextval,  , ..., 1(true)/0(false) );
 
 
 -- Alle featured gifs 
