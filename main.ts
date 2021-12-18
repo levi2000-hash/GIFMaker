@@ -8,11 +8,11 @@ import * as repo from './persist/repo'
 
 aws.config.update(
     {
-        accessKeyId: "ASIAVUZ3GXGT5O5V726F",
-        secretAccessKey: "MHdQycPCoAayHf40RnPXxYFcIgUwEDsqwCoRnmpr",
+        accessKeyId: "ASIAVUZ3GXGTVFG5HS4X",
+        secretAccessKey: "qfmm4AaZm3crjcv2T16X0L0MAd27oIFdlD5T7U6W",
         region: "us-east-1",
         signatureVersion: "v4",
-        sessionToken: "FwoGZXIvYXdzELb//////////wEaDM6LHu7UcXoTwDrXpSLLARBcvgRlClAdSWMR59D2QLGWll/1iNPNvs5xjpRQKvfYATT0a1F7UHfDbrCoOzf8rHrY9Z+rmvS92l1v4qNKlrjlG9CHEESCsZu7JIwJn1ONnFX/lPX3GS9R+5DrALQl9eTkKdbYI8vcY5pgB8bvUV98F5+jJfjb28LnGgsqFE2bkVEHnR1uUh/tbcTdoxxLjEUo3HCVrUyS/2KIaNlIsK0GiXrMRqOk95g1kYYANcbrtiDcrR/fBBUK2t4yj685IDPKcw8jGz0sJi0SKLPx7I0GMi0EhF//73QKtaglw1VBe3Dl6RCGMbaur+npdjRLRl7gZrMuEm0np3w5YZ3AfrI="
+        sessionToken: "FwoGZXIvYXdzENj//////////wEaDOtYzjhOHC9E0Ki8nyLLAVe71OdGFyRZC+7otF/cy9pKtyc3HuC1kZW12422Ez59RAy4Arm4lgZ1/I8UXqtH2v6fHT97lRwEbVZaD7uiTgTxDaJDUZgDIRctfATsBXFBTARcB2bS646SwoSABOZyiQjYTq5oX+16eR9PsDxwou9X9w8o5vC0b2FBou0+jQxe1j5jiEunBnF6Kczv84vnDHOx2ENDr+7gB+t4w+SPWmu2aqS0j3GTrAZm+Ibd/TZDHLJf5wZiSOYBWtSJvnCL79EzPI5ZUKT1PKNPKLmq9I0GMi3hp9C+TyIsv0P3ukXUf2IISJtA2s8rMSSaatrUfyVOhg11T3xTFVeuD39ja6g="
     }
 )
 
@@ -49,15 +49,10 @@ app.post("/api/exchange-code", (req, res) => {
                 password: client_secret
             }
         }).then(result => {
-            //Get unique user ID (sub) from id_token jwt
-            let sub = jwt.decode(result.data.id_token).sub
-            console.log(sub)
-
             res.cookie('loggedIn', true)
             res.cookie('id_token', result.data.id_token, { httpOnly: true })
-            res.json(result.data)
+            res.json()
         }).catch(err => {
-
             res.status(500).json(err)
         })
 })
@@ -75,22 +70,9 @@ app.get('/api/imageurl', (req, res) => {
     else {
 
         const objectId = generateObjectId();
-        console.log("Return upload url with objectid: ", objectId)
         const generatedUrl = generatePutUrl(objectId, 'image/jpg');
         res.json(generatedUrl);
     }
-})
-
-app.get('/dbtest/featured', (req, res) => {
-    repo.getAllFeaturedGifsFromUser("user123").then((data) => {
-        res.json(data)
-    })
-
-})
-
-app.get('/dbtest/create', (req, res) => {
-    repo.addGifTask({ userId: "user123", outputObjectId: "object123", featured: true })
-    res.json();
 })
 
 app.get('/api/featured', (req, res) => {
@@ -104,12 +86,12 @@ app.get('/api/featured', (req, res) => {
     }
     else {
         const userId = jwt.decode(req.cookies.id_token).sub
-        repo.getAllFeaturedGifsFromUserMemory(userId).then(featured => {
+        repo.getAllFeaturedGifsFromUser(userId).then(featured => {
             
             let urls: string[] = []
             let checkPromises: Promise<any>[] = []
             featured.forEach(gif => {
-                checkPromises.push(checkIfObjectExists(gif));
+                checkPromises.push(checkIfObjectExists(gif.outputObjectId));
             });
 
             Promise.all(checkPromises).then((values)=>{
@@ -155,7 +137,6 @@ app.post('/api/signaluploadcompleted', (req, res) => {
 
 
         const outputObjectId = generateObjectId(featured);
-        console.log('Output id: ', outputObjectId);
 
         const outputImageUrl = generatePutUrl(outputObjectId, 'image/gif', true);
 
@@ -172,9 +153,9 @@ app.post('/api/signaluploadcompleted', (req, res) => {
             .then(function (response) {
 
                 //WRITE TO DB
-                //repo.addGifTask({userId: userId, outputObjectId: outputObjectId, featured: featured})
+                repo.addGifTask({userId: userId, outputObjectId: outputObjectId, featured: featured})
 
-                repo.addGifTaskMemory({ userId: userId, outputObjectId: outputObjectId, featured: featured })
+                //repo.addGifTaskMemory({ userId: userId, outputObjectId: outputObjectId, featured: featured })
 
                 const gifUrl = generateGetUrl(outputObjectId);
                 res.json(gifUrl);

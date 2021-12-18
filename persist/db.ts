@@ -1,13 +1,17 @@
-import mariadb = require('mariadb');
+import mariadb from 'mariadb';
+
 
 // connection pool
-var pool =
-  mariadb.createPool({
-    "host": "gifdb.ccw1pma4egwk.us-east-1.rds.amazonaws.com",
+let pool =
+ mariadb.createPool({
+    "host": "gifmaker-db.cpeyupjlli4d.us-east-1.rds.amazonaws.com",
     "port": 3306,
-    "user": "levi",
-    "password": "",
-    "database": "gifAPI"
+    "user": "gifapi",
+    "password": "fOyH81b5QV8vMxEkByL1",
+    "database": "gifmakerdb"
   });
 
-export { pool }
+export function getPool()
+{
+  return pool
+}

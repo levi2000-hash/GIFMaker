@@ -1,32 +1,23 @@
-import {pool} from "./db"
+import {getPool} from "./db"
 
-let gifTasks: GifTask[] =[]
+
 
 export function addGifTask(task : GifTask)
 {
-    pool.query(`INSERT INTO GifTask (id, userId, outputObjectId, featured)
-    VALUES (NEXTVAL(gifseq), "${task.userId}" ,"${task.outputObjectId}", ${task.featured});`) //Insert into statements
+    getPool().query(`INSERT INTO GifTask (id, userId, outputObjectId, featured)
+    VALUES (NEXTVAL(gifseq), "${task.userId}" ,"${task.outputObjectId}", ${task.featured});`)
+
+   
 }
 
 export function getAllFeaturedGifsFromUser(userId: string) : Promise<any>
 {
-
-    return pool.query(`SELECT outputObjectId FROM GifTask WHERE featured=TRUE AND userId=${userId}`)
+    let val : Promise<any> = getPool().query(`SELECT outputObjectId FROM GifTask WHERE featured=1 AND userId="${userId}"`)
+   
+    return val
 }
 
-export function addGifTaskMemory(task : GifTask)
-{
-    gifTasks.push(task)
-}
 
-export function getAllFeaturedGifsFromUserMemory(userId: string) : Promise<any>
-{
-    return new Promise((resolve)=>{
-        let featuredGifs = gifTasks.filter(gif => gif.featured && gif.userId == userId).map(gif => gif.outputObjectId)
-
-        resolve(featuredGifs)
-    })
-}
 
 export interface GifTask{
     id?: number
