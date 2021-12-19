@@ -1,0 +1,181 @@
+{
+	"info": {
+		"_postman_id": "f7fed9ef-c906-4de6-8172-2878bcf0a7f3",
+		"name": "2ITSOF3-4 Gifmaker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Hello World Test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://ec2-54-205-85-96.compute-1.amazonaws.com/api/hello",
+					"protocol": "http",
+					"host": [
+						"ec2-54-205-85-96",
+						"compute-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"api",
+						"hello"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Exchange Code",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\":\"code from cognito\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://ec2-54-205-85-96.compute-1.amazonaws.com/api/exchange-code",
+					"protocol": "http",
+					"host": [
+						"ec2-54-205-85-96",
+						"compute-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"api",
+						"exchange-code"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "S3 Presigned Up URL",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://ec2-54-205-85-96.compute-1.amazonaws.com/api/imageurl",
+					"protocol": "http",
+					"host": [
+						"ec2-54-205-85-96",
+						"compute-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"api",
+						"imageurl"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload to S3",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "https://2itsof3-4-gifapi-storage.s3.us-east-1.amazonaws.com/",
+					"protocol": "https",
+					"host": [
+						"2itsof3-4-gifapi-storage",
+						"s3",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create GIF",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"uploadUrls\": [\r\n        \"https://2itsof3-4-gifapi-storage.s3.us-east-1.amazonaws.com/\",\r\n        \"https://2itsof3-4-gifapi-storage.s3.us-east-1.amazonaws.com/\"\r\n    ],\r\n    \"featured\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://ec2-54-205-85-96.compute-1.amazonaws.com/api/signaluploadcompleted",
+					"protocol": "http",
+					"host": [
+						"ec2-54-205-85-96",
+						"compute-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"api",
+						"signaluploadcompleted"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Download from S3",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://2itsof3-4-gifapi-storage.s3.us-east-1.amazonaws.com/",
+					"protocol": "https",
+					"host": [
+						"2itsof3-4-gifapi-storage",
+						"s3",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Featured GIFs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://ec2-54-205-85-96.compute-1.amazonaws.com/api/featured",
+					"protocol": "http",
+					"host": [
+						"ec2-54-205-85-96",
+						"compute-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"api",
+						"featured"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

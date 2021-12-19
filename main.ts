@@ -17,7 +17,7 @@ aws.config.update(
 )
 
 const s3 = new aws.S3();
-const bucketName = 'gifmaker-test-robbe'
+const bucketName = '2itsof3-4-gifapi-storage'
 
 let app = express()
 app.use(express.json())
